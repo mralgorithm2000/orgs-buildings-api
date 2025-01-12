@@ -1,66 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# REST API Справочник для Организаций, Зданий и Деятельностей
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Содержание
 
-## About Laravel
+1. [Обзор](#Обзор)
+2. [Возможности](#Возможности)
+3. [Требования](#Требования)
+4. [Установка и настройка](#Установка-и-настройка)
+5. [Документация API](#Документация-API)
+6. [Аутентификация](#Аутентификация)
+7. [Шаблоны проектирования и лучшие практики](#Шаблоны-проектирования-и-лучшие-практики)
+8. [Развертывание](#Развертывание)
+9. [Тестирование](#Тестирование)
+10. [Дополнительные замечания](#Дополнительные-замечания)
+11. [Лицензия](#Лицензия)
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Обзор
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Этот проект представляет собой REST API приложение для управления справочником организаций, зданий и видов деятельности. API поддерживает операции, такие как получение организаций по зданию или виду деятельности, запрос организаций в географических областях и многое другое. Приложение построено с использованием Laravel и следует современным шаблонам проектирования и лучшим практикам, включая шаблон проектирования Repository для четкого разделения кода.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Возможности
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Получение всех организаций в конкретном здании.
+  
+- Получение всех организаций, связанных с определенным видом деятельности.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- Получение организаций в радиусе или прямоугольной области относительно точки на карте.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Список всех зданий.
 
-## Laravel Sponsors
+- Получение подробной информации об организации по её ID.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Поиск организаций по виду деятельности, включая иерархический поиск.
 
-### Premium Partners
+- Поиск организаций по названию.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- Ограничение глубины иерархии видов деятельности до трёх уровней.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Требования
 
-## Code of Conduct
+- Docker с Laravel Sail
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP 8.1+
 
-## Security Vulnerabilities
+- Composer
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Установка и настройка
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. **Клонирование репозитория**:
+   ```bash
+   git clone https://github.com/mralgorithm2000/orgs-buildings-api.git
+   cd orgs-buildings-api
+   ```
+
+2. **Установка зависимостей**:
+    Запустите следующую команду для установки всех зависимостей:
+    ```bash
+    composer install
+    ```
+
+3. **Настройка файла окружения**:
+    Скопируйте пример файла .env.example в .env:
+    ```bash
+    cp .env.example .env
+    ```
+4. **Запуск приложения**:
+    Запустите сервер с помощью Laravel Sail:
+    ```bash
+    ./vendor/bin/sail up
+    ```
+
+5. **Генерация API-ключа**
+    Создайте API-ключ и сохраните его в файле .env под параметром STATIC_API_KEY:
+    ```bash
+   ./vendor/bin/sail artisan generate:apikey
+    ```
+
+    API-ключ будет использоваться для аутентификации и должен быть включен в заголовок X-API-KEY каждого запроса.
+
+6. **Запуск миграций и заполнение базы данных**:
+    Запустите следующие команды для настройки базы данных и заполнения её тестовыми данными:
+    ```bash
+   ./vendor/bin/sail artisan migrate --seed
+    ```
+7. **Проверка настройки**:
+    Запустите тестовый набор, чтобы убедиться, что всё работает корректно:    
+    
+    ```bash
+   ./vendor/bin/sail artisan test
+    ```
+
+## Документация API
+
+Документация API доступна по адресу /api/documentation. Посетите этот URL после запуска сервера, чтобы изучить методы API, параметры и ожидаемые ответы.
+
+## Аутентификация
+
+API использует статический API-ключ для аутентификации. Чтобы отправить аутентифицированный запрос, включите заголовок X-API-KEY в ваш запрос со значением, установленным в шаге 5.
+
+Пример:
+
+   ```Header
+    GET /api/organizations/building/{building_id} HTTP/1.1
+    Host: your-domain.com
+    X-API-KEY: your-static-api-key
+   ```
+
+## Шаблоны проектирования и лучшие практики
+
+Этот проект реализует следующее:
+
+- **Шаблон проектирования Repository:** Для разделения уровня данных и бизнес-логики, что обеспечивает более чистый и поддерживаемый код.
+
+- **Валидация и обработка ошибок:** Обеспечивает надежность и удобные для пользователя ответы.
+
+- **Dockerизация с Laravel Sail:** Упрощает развертывание и локальную разработку.
+
+
+## Развертывание
+    Для развертывания сервера просто выполните следующую команду:
+
+    ```bash
+        ./vendor/bin/sail up
+    ```
+    Это запустит все необходимые сервисы (например, MySQL, PHP, Nginx) в Docker-контейнерах.
+
+
+## Тестирование
+
+    Убедитесь, что все функции работают корректно, запустив:
+
+    ```bash
+        ./vendor/bin/sail artisan test
+    ```
+
+## Дополнительные замечания
+
+ - Используйте команду sail для всех задач Artisan, таких как миграции, заполнение базы данных и генерация API-ключей.
+
+ - Тестовые данные включают предварительно заполненные здания, виды деятельности и организации для немедленного использования.
+
+## Лицензия
+
+Этот проект является открытым программным обеспечением и доступен в соответствии с MIT License.
