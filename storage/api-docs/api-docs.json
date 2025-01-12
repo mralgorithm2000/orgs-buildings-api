@@ -1,0 +1,336 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API организаций и зданий",
+        "description": "API для управления организациями, зданиями и деятельностью.",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.example.com",
+            "description": "Продуктивный сервер"
+        },
+        {
+            "url": "https://api-staging.example.com",
+            "description": "Сервер для тестирования"
+        }
+    ],
+    "paths": {
+        "/api/buildings": {
+            "get": {
+                "tags": [
+                    "Buildings"
+                ],
+                "summary": "list of buildings",
+                "operationId": "572e55bad0698264e29e3722676f8d00",
+                "parameters": [
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of buildings"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "вывод информации об организации по её идентификатору",
+                "operationId": "11826ee077ae441c61f2bee8476e2a14",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Organization details returned successfully"
+                    },
+                    "404": {
+                        "description": "Organization not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations/building/{buildingId}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "список всех организаций находящихся в конкретном здании",
+                "operationId": "4a27e095a6c8752e92df909c27d7df6e",
+                "parameters": [
+                    {
+                        "name": "buildingId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of organizations in the specified building"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        },
+        "/api/organizations/activity/{activityId}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "список всех организаций, которые относятся к указанному виду деятельности",
+                "operationId": "b03a17d26be10f29616d8ada20c9a360",
+                "parameters": [
+                    {
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of organizations related to the specified activity"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        },
+        "/api/organizations/activity-tree/{activityId}": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "искать организации по виду деятельности и его подкатегориям до 3 уровней.",
+                "operationId": "e5c17e8dd324e116e71cc44e5ff9a71c",
+                "parameters": [
+                    {
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of organizations related to the specified activity and its subcategories up to 3 levels."
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        },
+        "/api/organizations/search/name": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "поиск организации по названию",
+                "operationId": "93b4e6ec0d1bfe63ef8aa56a800698f7",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "minLength": 2
+                        }
+                    },
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of organizations matching the search criteria"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        },
+        "/api/organizations/search/nearby": {
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "список организаций, которые находятся в заданном радиусе/прямоугольной области относительно указанной точки на карте. список зданий",
+                "operationId": "458d57749f0febd4f8ee8405872fa30f",
+                "parameters": [
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "long",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "radius",
+                                "rectangle"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "radius",
+                        "in": "query",
+                        "description": "Radius in KM, required if type is 'radius'",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "area",
+                        "in": "query",
+                        "description": "Rectangle area defined by 4 coordinates (lat1, long1, lat2, long2), required if type is 'rectangle'",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    {
+                        "name": "page_limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of organizations in the specified area"
+                    },
+                    "400": {
+                        "description": "Bad request, invalid parameters"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Buildings",
+            "description": "Buildings"
+        },
+        {
+            "name": "Organizations",
+            "description": "Organizations"
+        }
+    ]
+}
