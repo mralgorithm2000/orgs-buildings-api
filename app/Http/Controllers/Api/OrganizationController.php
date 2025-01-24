@@ -11,9 +11,6 @@ use Illuminate\Http\Request;
  *     version="1.0.0",
  *     title="API организаций и зданий",
  *     description="API для управления организациями, зданиями и деятельностью.",
- *     @OA\Contact(
- *         email="support@example.com"
- *     ),
  *     @OA\License(
  *         name="MIT",
  *         url="https://opensource.org/licenses/MIT"
@@ -21,13 +18,15 @@ use Illuminate\Http\Request;
  * )
  *
  * @OA\Server(
- *     url="https://api.example.com",
+ *     url="http://localhost:8000",
  *     description="Продуктивный сервер"
  * )
- * 
- * @OA\Server(
- *     url="https://api-staging.example.com",
- *     description="Сервер для тестирования"
+ * @OA\SecurityScheme(
+ *     securityScheme="apiKey",
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-API-KEY",
+ *     description="API key for authentication"
  * )
  */
 class OrganizationController extends Controller
@@ -42,8 +41,9 @@ class OrganizationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/organizations/{id}",
-     *     summary="вывод информации об организации по её идентификатору",
+     *     summary="Get organization details by its ID",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -53,17 +53,67 @@ class OrganizationController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Organization details returned successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             properties={
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Schmitt-Schneider"),
+     *                 @OA\Property(property="building_id", type="integer", example=3),
+     *                 @OA\Property(
+     *                     property="activities",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         properties={
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="name", type="string", example="Еда"),
+     *                             @OA\Property(
+     *                                 property="pivot",
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="organization_id", type="integer", example=1),
+     *                                     @OA\Property(property="activity_id", type="integer", example=1)
+     *                                 }
+     *                             )
+     *                         }
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phones",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         properties={
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="organization_id", type="integer", example=1),
+     *                             @OA\Property(property="phone_number", type="string", example="+1-386-646-3674")
+     *                         }
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="building",
+     *                     type="object",
+     *                     properties={
+     *                         @OA\Property(property="id", type="integer", example=3),
+     *                         @OA\Property(property="address", type="string", example="104 Assunta Stravenue Suite 303\nEfrenport, WA 73410-0252"),
+     *                         @OA\Property(property="latitude", type="string", example="17.9043520"),
+     *                         @OA\Property(property="longitude", type="string", example="132.7195980")
+     *                     }
+     *                 )
+     *             }
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Organization not found",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="message", type="string")
+     *             @OA\Property(property="message", type="string", example="Organization not found")
      *         )
      *     ),
      * )
      */
+
     public function show($id)
     {
         $organization = $this->organizationRepository->findById($id);
@@ -76,8 +126,9 @@ class OrganizationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/organizations/building/{buildingId}",
-     *     summary="список всех организаций находящихся в конкретном здании",
+     *     summary="List of all organizations located in a specific building",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="buildingId",
      *         in="path",
@@ -88,11 +139,109 @@ class OrganizationController extends Controller
      *         name="page_limit",
      *         in="query",
      *         required=false,
-     *         @OA\Schema(type="integer", minimum=1, maximum=100)
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=20)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=1, default=1)
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="List of organizations in the specified building"
+     *         description="List of organizations in the specified building",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             properties={
+     *                 @OA\Property(
+     *                     property="current_page",
+     *                     type="integer",
+     *                     example=1
+     *                 ),
+     *                 @OA\Property(
+     *                     property="first_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/building/2?page=1"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="last_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/building/2?page=2"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="next_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/building/2?page=2"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="prev_page_url",
+     *                     type="string",
+     *                     example="null"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="per_page",
+     *                     type="integer",
+     *                     example=1
+     *                 ),
+     *                 @OA\Property(
+     *                     property="total",
+     *                     type="integer",
+     *                     example=2
+     *                 ),
+     *                 @OA\Property(
+     *                     property="data",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         properties={
+     *                             @OA\Property(property="id", type="integer", example=2),
+     *                             @OA\Property(property="name", type="string", example="DuBuque PLC"),
+     *                             @OA\Property(property="building_id", type="integer", example=2),
+     *                             @OA\Property(
+     *                                 property="activities",
+     *                                 type="array",
+     *                                 @OA\Items(
+     *                                     type="object",
+     *                                     properties={
+     *                                         @OA\Property(property="id", type="integer", example=1),
+     *                                         @OA\Property(property="name", type="string", example="Еда"),
+     *                                         @OA\Property(
+     *                                             property="pivot",
+     *                                             type="object",
+     *                                             properties={
+     *                                                 @OA\Property(property="organization_id", type="integer", example=2),
+     *                                                 @OA\Property(property="activity_id", type="integer", example=1)
+     *                                             }
+     *                                         )
+     *                                     }
+     *                                 )
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="phones",
+     *                                 type="array",
+     *                                 @OA\Items(
+     *                                     type="object",
+     *                                     properties={
+     *                                         @OA\Property(property="id", type="integer", example=3),
+     *                                         @OA\Property(property="phone_number", type="string", example="+1-781-732-9856")
+     *                                     }
+     *                                 )
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="building",
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=2),
+     *                                     @OA\Property(property="address", type="string", example="877 Cathrine Port\nLake Rodland, ME 52865"),
+     *                                     @OA\Property(property="latitude", type="string", example="-82.5707030"),
+     *                                     @OA\Property(property="longitude", type="string", example="146.9179510")
+     *                                 }
+     *                             )
+     *                         }
+     *                     )
+     *                 )
+     *             }
+     *         )
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -100,6 +249,7 @@ class OrganizationController extends Controller
      *     )
      * )
      */
+
     public function getByBuilding(Request $request, $buildingId)
     {
         $request->validate([
@@ -111,8 +261,9 @@ class OrganizationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/organizations/activity/{activityId}",
-     *     summary="список всех организаций, которые относятся к указанному виду деятельности",
+     *     summary="List of all organizations related to the specified activity",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="activityId",
      *         in="path",
@@ -123,11 +274,109 @@ class OrganizationController extends Controller
      *         name="page_limit",
      *         in="query",
      *         required=false,
-     *         @OA\Schema(type="integer", minimum=1, maximum=100)
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=20)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=1, default=1)
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="List of organizations related to the specified activity"
+     *         description="List of organizations related to the specified activity",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             properties={
+     *                 @OA\Property(
+     *                     property="current_page",
+     *                     type="integer",
+     *                     example=3
+     *                 ),
+     *                 @OA\Property(
+     *                     property="first_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/activity/3?page=1"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="last_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/activity/3?page=6"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="next_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/activity/3?page=4"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="prev_page_url",
+     *                     type="string",
+     *                     example="http://localhost:8000/api/organizations/activity/3?page=2"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="per_page",
+     *                     type="integer",
+     *                     example=1
+     *                 ),
+     *                 @OA\Property(
+     *                     property="total",
+     *                     type="integer",
+     *                     example=6
+     *                 ),
+     *                 @OA\Property(
+     *                     property="data",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         properties={
+     *                             @OA\Property(property="id", type="integer", example=12),
+     *                             @OA\Property(property="name", type="string", example="Howe Inc"),
+     *                             @OA\Property(property="building_id", type="integer", example=9),
+     *                             @OA\Property(
+     *                                 property="activities",
+     *                                 type="array",
+     *                                 @OA\Items(
+     *                                     type="object",
+     *                                     properties={
+     *                                         @OA\Property(property="id", type="integer", example=2),
+     *                                         @OA\Property(property="name", type="string", example="Мясная продукция"),
+     *                                         @OA\Property(
+     *                                             property="pivot",
+     *                                             type="object",
+     *                                             properties={
+     *                                                 @OA\Property(property="organization_id", type="integer", example=12),
+     *                                                 @OA\Property(property="activity_id", type="integer", example=2)
+     *                                             }
+     *                                         )
+     *                                     }
+     *                                 )
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="phones",
+     *                                 type="array",
+     *                                 @OA\Items(
+     *                                     type="object",
+     *                                     properties={
+     *                                         @OA\Property(property="id", type="integer", example=25),
+     *                                         @OA\Property(property="phone_number", type="string", example="+1 (763) 309-3017")
+     *                                     }
+     *                                 )
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="building",
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=9),
+     *                                     @OA\Property(property="address", type="string", example="280 White Estate Suite 584\nLangoshland, AL 65860"),
+     *                                     @OA\Property(property="latitude", type="string", example="21.6551890"),
+     *                                     @OA\Property(property="longitude", type="string", example="-69.0083690")
+     *                                 }
+     *                             )
+     *                         }
+     *                     )
+     *                 )
+     *             }
+     *         )
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -148,6 +397,7 @@ class OrganizationController extends Controller
      *     path="/api/organizations/activity-tree/{activityId}",
      *     summary="искать организации по виду деятельности и его подкатегориям до 3 уровней.",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="activityId",
      *         in="path",
@@ -158,11 +408,69 @@ class OrganizationController extends Controller
      *         name="page_limit",
      *         in="query",
      *         required=false,
-     *         @OA\Schema(type="integer", minimum=1, maximum=100)
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=20)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=1, default=1)
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="List of organizations related to the specified activity and its subcategories up to 3 levels."
+     *         description="List of organizations related to the specified activity and its subcategories up to 3 levels.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="current_page", type="integer", example=1),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Schmitt-Schneider"),
+     *                     @OA\Property(property="building_id", type="integer", example=3),
+     *                     @OA\Property(
+     *                         property="activities",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="name", type="string", example="Еда"),
+     *                             @OA\Property(
+     *                                 property="pivot",
+     *                                 type="object",
+     *                                 @OA\Property(property="organization_id", type="integer", example=1),
+     *                                 @OA\Property(property="activity_id", type="integer", example=1)
+     *                             )
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="phones",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="organization_id", type="integer", example=1),
+     *                             @OA\Property(property="phone_number", type="string", example="+1-386-646-3674")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="building",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=3),
+     *                         @OA\Property(property="address", type="string", example="104 Assunta Stravenue Suite 303\nEfrenport, WA 73410-0252"),
+     *                         @OA\Property(property="latitude", type="string", example="17.9043520"),
+     *                         @OA\Property(property="longitude", type="string", example="132.7195980")
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="first_page_url", type="string", example="http://localhost:8000/api/organizations/activity-tree/1?page=1"),
+     *             @OA\Property(property="last_page_url", type="string", example="http://localhost:8000/api/organizations/activity-tree/1?page=1"),
+     *             @OA\Property(property="next_page_url", type="string", example="null"),
+     *             @OA\Property(property="prev_page_url", type="string", example="null"),
+     *             @OA\Property(property="total", type="integer", example=12)
+     *         )
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -170,6 +478,7 @@ class OrganizationController extends Controller
      *     )
      * )
      */
+
     public function getByActivityTree(Request $request, $activityId)
     {
         $request->validate([
@@ -181,8 +490,9 @@ class OrganizationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/organizations/search/name",
-     *     summary="поиск организации по названию",
+     *     summary="Search for an organization by name",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="name",
      *         in="query",
@@ -193,15 +503,102 @@ class OrganizationController extends Controller
      *         name="page_limit",
      *         in="query",
      *         required=false,
-     *         @OA\Schema(type="integer", minimum=1, maximum=100)
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=20)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=1, default=1)
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="List of organizations matching the search criteria"
+     *         description="List of organizations matching the search criteria",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="current_page", type="integer", example=1),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     properties={
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="name", type="string", example="DuBuque PLC"),
+     *                         @OA\Property(property="building_id", type="integer", example=2),
+     *                         @OA\Property(
+     *                             property="activities",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=1),
+     *                                     @OA\Property(property="name", type="string", example="Еда"),
+     *                                     @OA\Property(
+     *                                         property="pivot",
+     *                                         type="object",
+     *                                         properties={
+     *                                             @OA\Property(property="organization_id", type="integer", example=2),
+     *                                             @OA\Property(property="activity_id", type="integer", example=1)
+     *                                         }
+     *                                     )
+     *                                 }
+     *                             )
+     *                         ),
+     *                         @OA\Property(
+     *                             property="phones",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=3),
+     *                                     @OA\Property(property="organization_id", type="integer", example=2),
+     *                                     @OA\Property(property="phone_number", type="string", example="+1-781-732-9856")
+     *                                 }
+     *                             )
+     *                         ),
+     *                         @OA\Property(
+     *                             property="building",
+     *                             type="object",
+     *                             properties={
+     *                                 @OA\Property(property="id", type="integer", example=2),
+     *                                 @OA\Property(property="address", type="string", example="877 Cathrine Port\nLake Rodland, ME 52865"),
+     *                                 @OA\Property(property="latitude", type="string", example="-82.5707030"),
+     *                                 @OA\Property(property="longitude", type="string", example="146.9179510")
+     *                             }
+     *                         )
+     *                     }
+     *                 )
+     *             ),
+     *             @OA\Property(property="first_page_url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *             @OA\Property(property="from", type="integer", example=1),
+     *             @OA\Property(property="last_page", type="integer", example=1),
+     *             @OA\Property(property="last_page_url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *             @OA\Property(
+     *                 property="links",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     properties={
+     *                         @OA\Property(property="url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *                         @OA\Property(property="label", type="string", example="1"),
+     *                         @OA\Property(property="active", type="boolean", example=true)
+     *                     }
+     *                 )
+     *             ),
+     *             @OA\Property(property="next_page_url", type="string", example=null),
+     *             @OA\Property(property="path", type="string", example="http://localhost:8000/api/organizations/search/name"),
+     *             @OA\Property(property="per_page", type="integer", example=15),
+     *             @OA\Property(property="prev_page_url", type="string", example=null),
+     *             @OA\Property(property="to", type="integer", example=2),
+     *             @OA\Property(property="total", type="integer", example=2)
+     *         )
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Bad request, invalid parameters"
+     *         description="Bad request, invalid parameters",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid parameters")
+     *         )
      *     )
      * )
      */
@@ -217,8 +614,9 @@ class OrganizationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/organizations/search/nearby",
-     *     summary="список организаций, которые находятся в заданном радиусе/прямоугольной области относительно указанной точки на карте. список зданий",
+     *     summary="List of organizations within a specified radius/rectangular area relative to the given point on the map. List of buildings.",
      *     tags={"Organizations"},
+     *     security={{"apiKey": {}}},
      *     @OA\Parameter(
      *         name="lat",
      *         in="query",
@@ -256,11 +654,94 @@ class OrganizationController extends Controller
      *         name="page_limit",
      *         in="query",
      *         required=false,
-     *         @OA\Schema(type="integer", minimum=1, maximum=100)
+     *         @OA\Schema(type="integer", minimum=1, maximum=100, default=20)
      *     ),
-     *     @OA\Response(
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", minimum=1, default=1)
+     *     ),
+      *     @OA\Response(
      *         response=200,
-     *         description="List of organizations in the specified area"
+     *         description="List of organizations matching the search criteria",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="current_page", type="integer", example=1),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     properties={
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="name", type="string", example="DuBuque PLC"),
+     *                         @OA\Property(property="building_id", type="integer", example=2),
+     *                         @OA\Property(
+     *                             property="activities",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=1),
+     *                                     @OA\Property(property="name", type="string", example="Еда"),
+     *                                     @OA\Property(
+     *                                         property="pivot",
+     *                                         type="object",
+     *                                         properties={
+     *                                             @OA\Property(property="organization_id", type="integer", example=2),
+     *                                             @OA\Property(property="activity_id", type="integer", example=1)
+     *                                         }
+     *                                     )
+     *                                 }
+     *                             )
+     *                         ),
+     *                         @OA\Property(
+     *                             property="phones",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 properties={
+     *                                     @OA\Property(property="id", type="integer", example=3),
+     *                                     @OA\Property(property="organization_id", type="integer", example=2),
+     *                                     @OA\Property(property="phone_number", type="string", example="+1-781-732-9856")
+     *                                 }
+     *                             )
+     *                         ),
+     *                         @OA\Property(
+     *                             property="building",
+     *                             type="object",
+     *                             properties={
+     *                                 @OA\Property(property="id", type="integer", example=2),
+     *                                 @OA\Property(property="address", type="string", example="877 Cathrine Port\nLake Rodland, ME 52865"),
+     *                                 @OA\Property(property="latitude", type="string", example="-82.5707030"),
+     *                                 @OA\Property(property="longitude", type="string", example="146.9179510")
+     *                             }
+     *                         )
+     *                     }
+     *                 )
+     *             ),
+     *             @OA\Property(property="first_page_url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *             @OA\Property(property="from", type="integer", example=1),
+     *             @OA\Property(property="last_page", type="integer", example=1),
+     *             @OA\Property(property="last_page_url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *             @OA\Property(
+     *                 property="links",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     properties={
+     *                         @OA\Property(property="url", type="string", example="http://localhost:8000/api/organizations/search/name?page=1"),
+     *                         @OA\Property(property="label", type="string", example="1"),
+     *                         @OA\Property(property="active", type="boolean", example=true)
+     *                     }
+     *                 )
+     *             ),
+     *             @OA\Property(property="next_page_url", type="string", example=null),
+     *             @OA\Property(property="path", type="string", example="http://localhost:8000/api/organizations/search/name"),
+     *             @OA\Property(property="per_page", type="integer", example=15),
+     *             @OA\Property(property="prev_page_url", type="string", example=null),
+     *             @OA\Property(property="to", type="integer", example=2),
+     *             @OA\Property(property="total", type="integer", example=2)
+     *         )
      *     ),
      *     @OA\Response(
      *         response=400,

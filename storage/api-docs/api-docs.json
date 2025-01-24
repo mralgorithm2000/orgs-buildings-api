@@ -3,9 +3,6 @@
     "info": {
         "title": "API организаций и зданий",
         "description": "API для управления организациями, зданиями и деятельностью.",
-        "contact": {
-            "email": "support@example.com"
-        },
         "license": {
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
@@ -14,12 +11,8 @@
     },
     "servers": [
         {
-            "url": "https://api.example.com",
+            "url": "http://localhost:8000",
             "description": "Продуктивный сервер"
-        },
-        {
-            "url": "https://api-staging.example.com",
-            "description": "Сервер для тестирования"
         }
     ],
     "paths": {
@@ -28,7 +21,7 @@
                 "tags": [
                     "Buildings"
                 ],
-                "summary": "list of buildings",
+                "summary": "List of buildings",
                 "operationId": "572e55bad0698264e29e3722676f8d00",
                 "parameters": [
                     {
@@ -37,19 +30,116 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of buildings"
+                        "description": "List of buildings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/buildings?page=1"
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/buildings?page=18"
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/buildings?page=4"
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/buildings?page=2"
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 36
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 5
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "3734 Stone River Apt. 791\\nNorth Savanahland, KS 75867-0148"
+                                                    },
+                                                    "latitude": {
+                                                        "type": "string",
+                                                        "example": "5.8428020"
+                                                    },
+                                                    "longitude": {
+                                                        "type": "string",
+                                                        "example": "-141.0151560"
+                                                    },
+                                                    "organizations": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Wintheiser-Lakin"
+                                                                },
+                                                                "building_id": {
+                                                                    "type": "integer",
+                                                                    "example": 5
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request, invalid parameters"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/{id}": {
@@ -57,7 +147,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "вывод информации об организации по её идентификатору",
+                "summary": "Get organization details by its ID",
                 "operationId": "11826ee077ae441c61f2bee8476e2a14",
                 "parameters": [
                     {
@@ -71,7 +161,98 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Organization details returned successfully"
+                        "description": "Organization details returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Schmitt-Schneider"
+                                        },
+                                        "building_id": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "activities": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Еда"
+                                                    },
+                                                    "pivot": {
+                                                        "properties": {
+                                                            "organization_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "activity_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "phones": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "organization_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "phone_number": {
+                                                        "type": "string",
+                                                        "example": "+1-386-646-3674"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "building": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "104 Assunta Stravenue Suite 303\\nEfrenport, WA 73410-0252"
+                                                },
+                                                "latitude": {
+                                                    "type": "string",
+                                                    "example": "17.9043520"
+                                                },
+                                                "longitude": {
+                                                    "type": "string",
+                                                    "example": "132.7195980"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Organization not found",
@@ -80,7 +261,8 @@
                                 "schema": {
                                     "properties": {
                                         "message": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Organization not found"
                                         }
                                     },
                                     "type": "object"
@@ -88,7 +270,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/building/{buildingId}": {
@@ -96,7 +283,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "список всех организаций находящихся в конкретном здании",
+                "summary": "List of all organizations located in a specific building",
                 "operationId": "4a27e095a6c8752e92df909c27d7df6e",
                 "parameters": [
                     {
@@ -113,19 +300,158 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of organizations in the specified building"
+                        "description": "List of organizations in the specified building",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/building/2?page=1"
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/building/2?page=2"
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/building/2?page=2"
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": "null"
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "DuBuque PLC"
+                                                    },
+                                                    "building_id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "activities": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Еда"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "organization_id": {
+                                                                            "type": "integer",
+                                                                            "example": 2
+                                                                        },
+                                                                        "activity_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "phones": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "phone_number": {
+                                                                    "type": "string",
+                                                                    "example": "+1-781-732-9856"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "building": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "877 Cathrine Port\\nLake Rodland, ME 52865"
+                                                            },
+                                                            "latitude": {
+                                                                "type": "string",
+                                                                "example": "-82.5707030"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "string",
+                                                                "example": "146.9179510"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request, invalid parameters"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/activity/{activityId}": {
@@ -133,7 +459,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "список всех организаций, которые относятся к указанному виду деятельности",
+                "summary": "List of all organizations related to the specified activity",
                 "operationId": "b03a17d26be10f29616d8ada20c9a360",
                 "parameters": [
                     {
@@ -150,19 +476,158 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of organizations related to the specified activity"
+                        "description": "List of organizations related to the specified activity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity/3?page=1"
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity/3?page=6"
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity/3?page=4"
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity/3?page=2"
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 6
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Howe Inc"
+                                                    },
+                                                    "building_id": {
+                                                        "type": "integer",
+                                                        "example": 9
+                                                    },
+                                                    "activities": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Мясная продукция"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "organization_id": {
+                                                                            "type": "integer",
+                                                                            "example": 12
+                                                                        },
+                                                                        "activity_id": {
+                                                                            "type": "integer",
+                                                                            "example": 2
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "phones": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 25
+                                                                },
+                                                                "phone_number": {
+                                                                    "type": "string",
+                                                                    "example": "+1 (763) 309-3017"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "building": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 9
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "280 White Estate Suite 584\\nLangoshland, AL 65860"
+                                                            },
+                                                            "latitude": {
+                                                                "type": "string",
+                                                                "example": "21.6551890"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "string",
+                                                                "example": "-69.0083690"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request, invalid parameters"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/activity-tree/{activityId}": {
@@ -187,19 +652,158 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of organizations related to the specified activity and its subcategories up to 3 levels."
+                        "description": "List of organizations related to the specified activity and its subcategories up to 3 levels.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Schmitt-Schneider"
+                                                    },
+                                                    "building_id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "activities": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Еда"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "organization_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "activity_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "phones": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "organization_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "phone_number": {
+                                                                    "type": "string",
+                                                                    "example": "+1-386-646-3674"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "building": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "104 Assunta Stravenue Suite 303\\nEfrenport, WA 73410-0252"
+                                                            },
+                                                            "latitude": {
+                                                                "type": "string",
+                                                                "example": "17.9043520"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "string",
+                                                                "example": "132.7195980"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity-tree/1?page=1"
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/activity-tree/1?page=1"
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": "null"
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": "null"
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 12
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request, invalid parameters"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/search/name": {
@@ -207,7 +811,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "поиск организации по названию",
+                "summary": "Search for an organization by name",
                 "operationId": "93b4e6ec0d1bfe63ef8aa56a800698f7",
                 "parameters": [
                     {
@@ -226,19 +830,211 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of organizations matching the search criteria"
+                        "description": "List of organizations matching the search criteria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "DuBuque PLC"
+                                                    },
+                                                    "building_id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "activities": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Еда"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "organization_id": {
+                                                                            "type": "integer",
+                                                                            "example": 2
+                                                                        },
+                                                                        "activity_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "phones": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "organization_id": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "phone_number": {
+                                                                    "type": "string",
+                                                                    "example": "+1-781-732-9856"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "building": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "877 Cathrine Port\\nLake Rodland, ME 52865"
+                                                            },
+                                                            "latitude": {
+                                                                "type": "string",
+                                                                "example": "-82.5707030"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "string",
+                                                                "example": "146.9179510"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                        },
+                                        "from": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                        },
+                                        "links": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "url": {
+                                                        "type": "string",
+                                                        "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "1"
+                                                    },
+                                                    "active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name"
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "to": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Bad request, invalid parameters"
+                        "description": "Bad request, invalid parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid parameters"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
             }
         },
         "/api/organizations/search/nearby": {
@@ -246,7 +1042,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "список организаций, которые находятся в заданном радиусе/прямоугольной области относительно указанной точки на карте. список зданий",
+                "summary": "List of organizations within a specified radius/rectangular area relative to the given point on the map. List of buildings.",
                 "operationId": "458d57749f0febd4f8ee8405872fa30f",
                 "parameters": [
                     {
@@ -307,19 +1103,208 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
+                            "default": 20,
                             "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
                             "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of organizations in the specified area"
+                        "description": "List of organizations matching the search criteria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "DuBuque PLC"
+                                                    },
+                                                    "building_id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "activities": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Еда"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "organization_id": {
+                                                                            "type": "integer",
+                                                                            "example": 2
+                                                                        },
+                                                                        "activity_id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "phones": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "organization_id": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "phone_number": {
+                                                                    "type": "string",
+                                                                    "example": "+1-781-732-9856"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "building": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "877 Cathrine Port\\nLake Rodland, ME 52865"
+                                                            },
+                                                            "latitude": {
+                                                                "type": "string",
+                                                                "example": "-82.5707030"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "string",
+                                                                "example": "146.9179510"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "first_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                        },
+                                        "from": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page_url": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                        },
+                                        "links": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "url": {
+                                                        "type": "string",
+                                                        "example": "http://localhost:8000/api/organizations/search/name?page=1"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "1"
+                                                    },
+                                                    "active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000/api/organizations/search/name"
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "example": null
+                                        },
+                                        "to": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request, invalid parameters"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKey": {
+                "type": "apiKey",
+                "description": "API key for authentication",
+                "name": "X-API-KEY",
+                "in": "header"
             }
         }
     },
